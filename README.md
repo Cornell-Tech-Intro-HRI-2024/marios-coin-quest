@@ -1,1 +1,1 @@
-# marios-treasure-hunt
+# Mario's Treasure Hunt
