@@ -1,0 +1,36 @@
+running egg_info
+creating ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info
+writing ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/PKG-INFO
+writing dependency_links to ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/dependency_links.txt
+writing entry points to ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/entry_points.txt
+writing requirements to ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/requires.txt
+writing top-level names to ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/top_level.txt
+writing manifest file '../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/SOURCES.txt'
+reading manifest file '../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib/robot_control_architecture_pkg
+copying robot_control_architecture_pkg/robot_control_architecture_node.py -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib/robot_control_architecture_pkg
+copying robot_control_architecture_pkg/__init__.py -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib/robot_control_architecture_pkg
+running install
+running install_lib
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg
+copying /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib/robot_control_architecture_pkg/robot_control_architecture_node.py -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg
+copying /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/build/lib/robot_control_architecture_pkg/__init__.py -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg
+byte-compiling /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg/robot_control_architecture_node.py to robot_control_architecture_node.cpython-310.pyc
+byte-compiling /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/share/ament_index
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/share/ament_index/resource_index
+creating /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/share/ament_index/resource_index/packages
+copying resource/robot_control_architecture_pkg -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/share/ament_index/resource_index/packages
+copying package.xml -> /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/share/robot_control_architecture_pkg
+running install_egg_info
+Copying ../../build/robot_control_architecture_pkg/robot_control_architecture_pkg.egg-info to /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/python3.10/site-packages/robot_control_architecture_pkg-0.0.0-py3.10.egg-info
+running install_scripts
+Installing robot_control_architecture_node script to /home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/install/robot_control_architecture_pkg/lib/robot_control_architecture_pkg
+writing list of installed files to '/home/ubuntu/lab-3-robot-control-architecture-ii-a-a/ros2_ws/build/robot_control_architecture_pkg/install.log'
