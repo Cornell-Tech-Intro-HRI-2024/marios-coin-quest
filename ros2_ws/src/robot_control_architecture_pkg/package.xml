@@ -3,7 +3,7 @@
 <package format="3">
   <name>robot_control_architecture_pkg</name>
   <version>0.0.0</version>
-  <description>This package implements a deliberative/hybrid robot control architecture to enable a robot to approach a person while avoiding obstacles.</description>
+  <description>This package implements a hybrid robot control architecture to enable a robot to navigate effectively by combining reactive obstacle avoidance with strategic goal-oriented planning.</description>
   <maintainer email="aoa36@cornell.edu">Aimalohi Alakhume</maintainer>
   <license>Apache-2.0</license>
 
