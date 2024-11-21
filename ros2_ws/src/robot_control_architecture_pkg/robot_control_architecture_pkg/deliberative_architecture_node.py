@@ -70,6 +70,17 @@ class DeliberativeArchitectureNode(Node):
         elif self.state == self.STOP:
             #twist.linear.x = 0.0
         
-        
+def main(args=None):
+    rclpy.init(args=args)
 
-        #self.vel_pub.publish(twist)
+    robot_control_node = DeliberativeArchitectureNode()
+    rclpy.spin(robot_control_node)
+    print('node running...')
+
+    robot_control_node.destroy_node()
+    print('destroying node...')
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+

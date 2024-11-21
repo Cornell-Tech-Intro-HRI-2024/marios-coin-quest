@@ -21,7 +21,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'robot_control_architecture_node = robot_control_architecture_pkg.robot_control_architecture_node:main'
+            'robot_control_architecture_node = robot_control_architecture_pkg.robot_control_architecture_node:main',
+            'deliberative_architecture_node = robot_control_architecture_pkg.deliberative_architecture_node:main'
         ],
     },
 )
