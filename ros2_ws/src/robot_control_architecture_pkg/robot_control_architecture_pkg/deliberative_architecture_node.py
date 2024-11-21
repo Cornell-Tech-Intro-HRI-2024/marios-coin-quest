@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan, Image
 from std_msgs.msg import String
@@ -35,7 +36,9 @@ class DeliberativeArchitectureNode(Node):
             Odometry,
             '/odom',
             self.odom_callback,
-            10)
+            QoSProfile(
+                reliability=ReliabilityPolicy.BEST_EFFORT,
+                depth=10))
 
         # publisher
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
