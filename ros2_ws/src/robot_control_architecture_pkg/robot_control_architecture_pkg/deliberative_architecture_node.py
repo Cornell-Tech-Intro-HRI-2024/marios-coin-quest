@@ -43,6 +43,9 @@ class DeliberativeArchitectureNode(Node):
 
         # publisher
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        
+        self.timer = self.create_timer(0.1, self.control_cycle)
+        print("Finished initialization")
 
 
     def quaternion_to_yaw(self, orientation):
