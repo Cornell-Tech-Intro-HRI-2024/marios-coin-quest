@@ -66,8 +66,6 @@ class DeliberativeArchitectureNode(Node):
         if self.state == self.NAVIGATE:
             print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
             #twist.linear.x = self.LINEAR_SPEED
-
-        elif self.state == self.STOP:
             #twist.linear.x = 0.0
         
 def main(args=None):
