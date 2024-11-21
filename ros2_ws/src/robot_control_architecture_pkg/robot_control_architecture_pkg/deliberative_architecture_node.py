@@ -65,10 +65,6 @@ class DeliberativeArchitectureNode(Node):
         
 
     def control_cycle(self):
-        if not self.last_scan or not self.last_rgb_image or not self.last_depth_image:
-            return
-
-        twist = Twist()
 
         if self.state == self.NAVIGATE:
             print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
