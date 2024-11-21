@@ -17,9 +17,9 @@ class DeliberativeArchitectureNode(Node):
         print("Initializing node...")
         super().__init__('deliberative_architecture_node')
 
-        self.FORWARD = 0
+        self.NAVIGATE = 0
         self.STOP = 1
-        self.state = self.FORWARD
+        self.state = self.NAVIGATE
         
         # Odometry
         self.current_pose = None
