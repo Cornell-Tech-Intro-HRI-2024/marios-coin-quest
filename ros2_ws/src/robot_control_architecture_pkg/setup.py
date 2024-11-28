@@ -16,13 +16,13 @@ setup(
     zip_safe=True,
     maintainer='Aimalohi Alakhume',
     maintainer_email='aoa36@cornell.edu',
-    description='This package implements a deliberative/hybrid robot control architecture to enable a robot to approach a person while avoiding obstacles.',
+    description='This package implements a hybrid robot control architecture to enable a robot to navigate effectively by combining reactive obstacle avoidance with strategic goal-oriented planning.',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'robot_control_architecture_node = robot_control_architecture_pkg.robot_control_architecture_node:main',
-            'deliberative_architecture_node = robot_control_architecture_pkg.deliberative_architecture_node:main'
+            'reactive_architecture = robot_control_architecture_pkg.reactive_architecture_node:main',
+            'deliberative_architecture = robot_control_architecture_pkg.deliberative_architecture_node:main'
         ],
     },
 )
