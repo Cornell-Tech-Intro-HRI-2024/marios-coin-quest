@@ -3,14 +3,17 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan, Image
+from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 from cv_bridge import CvBridge
 import cv2
+import math
+import time
 
-class ReactiveRobotControlNode(Node):
+class ReactiveArchitectureNode(Node):
     def __init__(self):
         print("Initializing node...")
-        super().__init__('reactive_robot_control_node')
+        super().__init__('reactive_architecture_node')
 
         self.NAVIGATE = 0
         self.TURN_LEFT = 1
@@ -26,6 +29,12 @@ class ReactiveRobotControlNode(Node):
 
         self.br = CvBridge()
         self.score = 0 # game score
+
+        self.coin_locations = [(1.0, 2.0), (3.5, 1.2)] #dummy coordinates where coins are placed
+        self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
+
+        self.current_pose = None
+        self.celebrate_start_time = None #track celebration time
 
         self.scan_sub = self.create_subscription(
             LaserScan,
@@ -43,10 +52,16 @@ class ReactiveRobotControlNode(Node):
             '/stereo/depth', 
             self.depth_callback, 10)
 
-        self.mobilenet_sub = self.create_subscription(
+        self.detection_sub = self.create_subscription(
             String,
             '/color/mobilenet_detections',
             self.detection_callback,
+            10)
+        
+        self.odom_sub = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
             10)
 
         # publisher
@@ -74,6 +89,10 @@ class ReactiveRobotControlNode(Node):
             self.last_depth_image = self.br.imgmsg_to_cv2(msg, desired_encoding='32FC1')
         except cv2.error as e:
             self.get_logger().error(f"Failed to convert Depth image {e}")
+
+    def odom_callback(self, msg):
+        position = msg.pose.pose.position
+        self.current_pose = (position.x, position.y)
 
     def detection_callback(self, msg):
         self.detection_message = msg.data
@@ -114,13 +133,17 @@ class ReactiveRobotControlNode(Node):
             print(f"Score: {self.score}")
 
         elif self.state == self.CELEBRATE:
-            # celebration
             twist.angular.z = self.ANGULAR_SPEED
-            print(f"Congratulations, your high score is {self.score}")
+            print(f"Yay, we did it! Your high score is {self.score}")
+            if time.time() - self.celebrate_start_time >= 5.0: #if celebration is longer than 5 seconds
+                twist.linear.x = 0
+                twist.angular.z = 0
+                self.state = self.STOP
 
         elif self.state == self.COLLECT_COIN:
-            self.score += 500
-            print(f"New score: {self.score}")
+            if self.is_coin_within_reach():
+                self.score += 500
+                print(f"New score: {self.score}")
             self.state = self.NAVIGATE
 
         self.vel_pub.publish(twist)
@@ -166,3 +189,25 @@ class ReactiveRobotControlNode(Node):
     def detect_coin(self):
         # check if coin is detected
         return "coin" in self.detection_message if self.detection_message else False
+    
+    def is_coin_within_reach(self):
+        if not self.current_pose:
+            return False
+        for coin_location in self.coin_locations:
+            if self.euclidean_distance(self.current_pose, coin_location) < self.coin_tolerance:
+                return True
+        return False
+
+    def euclidean_distance(self, pose, target):
+        return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
+    
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ReactiveArchitectureNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
