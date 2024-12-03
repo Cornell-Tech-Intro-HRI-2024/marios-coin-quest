@@ -152,6 +152,9 @@ class DeliberativeArchitectureNode(Node):
                 self.mario_pub.publish(msg)
                 self.state = self.OUT_OF_BOUNDS
                 print("Out of bounds!")
+            
+            # Check for coins
+            self.check_for_coins()
         
         elif self.state == self.OUT_OF_BOUNDS:
             if not self.is_out_of_bounds():
