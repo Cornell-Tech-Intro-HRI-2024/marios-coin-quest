@@ -114,7 +114,7 @@ class DeliberativeArchitectureNode(Node):
 
         for coin in self.coins:
             coin_x, coin_y = coin
-            x, y, _ = self.current_position  # Unpack current position (x, y, yaw)
+            x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
 
             # Calculate distance to the coin
             distance = ((coin_x - x) ** 2 + (coin_y - y) ** 2) ** 0.5
