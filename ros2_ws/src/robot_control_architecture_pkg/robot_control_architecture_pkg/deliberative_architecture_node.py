@@ -49,12 +49,6 @@ class DeliberativeArchitectureNode(Node):
             QoSProfile(depth=10)
         )
         
-        # Define the "out-of-bounds" limits
-        self.minX = self.starting_pose.x - 1
-        self.minY = self.starting_pose.y - 1
-        self.maxX = self.starting_pose.x + 1
-        self.maxY = self.starting_pose.y + 1
-        
         # List of coin positions
         
         
