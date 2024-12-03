@@ -8,9 +8,6 @@ from std_msgs.msg import String
 from cv_bridge import CvBridge
 import math
 
-from geometry_msgs.msg import TransformStamped
-from tf2_ros import TransformBroadcaster
-
 # Import odometry
 from nav_msgs.msg import Odometry
 import cv2
@@ -20,25 +17,6 @@ class DeliberativeArchitectureNode(Node):
         print("Initializing node...")
         super().__init__('deliberative_architecture_node')
         
-        print("Resetting odometry...")
-        self.tf_broadcaster = TransformBroadcaster(self)
-        transform = TransformStamped()
-        transform.header.stamp = self.get_clock().now().to_msg()
-        transform.header.frame_id = 'odom'
-        transform.child_frame_id = 'base_link'
-
-        # Resetting position and orientation to zero
-        transform.transform.translation.x = 0.0
-        transform.transform.translation.y = 0.0
-        transform.transform.translation.z = 0.0
-        transform.transform.rotation.x = 0.0
-        transform.transform.rotation.y = 0.0
-        transform.transform.rotation.z = 0.0
-        transform.transform.rotation.w = 1.0
-
-        self.tf_broadcaster.sendTransform(transform)
-        print("Finished resetting odometry")
-
         self.NAVIGATE = 0
         self.STOP = 1
         self.OUT_OF_BOUNDS = 2
@@ -85,22 +63,37 @@ class DeliberativeArchitectureNode(Node):
         return math.atan2(siny_cosp, cosy_cosp)
 
     def odom_callback(self, msg):
+        """Handle incoming odometry messages and compute local space transform"""
         position = msg.pose.pose.position
         orientation = msg.pose.pose.orientation
-        self.current_pose = (position.x, position.y, self.quaternion_to_yaw(orientation))
-        # Use the first odom callback to set the starting pose for the robot
+
+        # Convert quaternion orientation to yaw
+        yaw = self.quaternion_to_yaw(orientation)
+
+        # Record the initial pose (local space origin)
         if self.starting_pose is None:
-            self.starting_pose = self.current_pose
-            # Arbitrary target location relative to the start for testing
-            self.target_pose = (position.x + 0.8, position.y, self.quaternion_to_yaw(orientation))
-            self.set_starting_positions()
+            self.starting_pose = (position.x, position.y, yaw)
+            self.get_logger().info("Local space origin set: x=%.3f, y=%.3f, yaw=%.3f" %
+                                   (self.starting_pose[0], self.starting_pose[1], self.starting_pose[2]))
+        
+        # Transform odometry into local space
+        dx = position.x - self.starting_pose[0]
+        dy = position.y - self.starting_pose[1]
+        dtheta = yaw - self.starting_pose[2]
+
+        # Rotate into local frame (account for initial yaw)
+        local_x = dx * math.cos(-self.starting_pose[2]) - dy * math.sin(-self.starting_pose[2])
+        local_y = dx * math.sin(-self.starting_pose[2]) + dy * math.cos(-self.starting_pose[2])
+
+        # Store the transformed pose
+        self.current_pose = (local_x, local_y, dtheta)
             
     def set_starting_positions(self):
         # Define the "out-of-bounds" limits
-        self.minX = self.starting_pose[0] - 1
-        self.minY = self.starting_pose[1] - 1
-        self.maxX = self.starting_pose[0] + 1
-        self.maxY = self.starting_pose[1] + 1
+        self.minX = -1
+        self.minY = -1
+        self.maxX = 1
+        self.maxY = 1
         
     def is_out_of_bounds(self):
         pos = self.current_pose
