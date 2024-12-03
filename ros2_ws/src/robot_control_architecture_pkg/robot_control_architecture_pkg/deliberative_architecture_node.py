@@ -49,8 +49,8 @@ class DeliberativeArchitectureNode(Node):
             QoSProfile(depth=10)
         )
         
-        # List of coin positions
-        
+        # Initialize starting positions
+        self.set_starting_positions()
         
         self.timer = self.create_timer(0.1, self.control_cycle)
         print("Finished initialization")
