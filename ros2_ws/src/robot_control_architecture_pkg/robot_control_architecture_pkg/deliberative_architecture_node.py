@@ -8,6 +8,9 @@ from std_msgs.msg import String
 from cv_bridge import CvBridge
 import math
 
+from geometry_msgs.msg import TransformStamped
+from tf2_ros import TransformBroadcaster
+
 # Import odometry
 from nav_msgs.msg import Odometry
 import cv2
@@ -16,6 +19,25 @@ class DeliberativeArchitectureNode(Node):
     def __init__(self):
         print("Initializing node...")
         super().__init__('deliberative_architecture_node')
+        
+        print("Resetting odometry...")
+        self.tf_broadcaster = TransformBroadcaster(self)
+        transform = TransformStamped()
+        transform.header.stamp = self.get_clock().now().to_msg()
+        transform.header.frame_id = 'odom'
+        transform.child_frame_id = 'base_link'
+
+        # Resetting position and orientation to zero
+        transform.transform.translation.x = 0.0
+        transform.transform.translation.y = 0.0
+        transform.transform.translation.z = 0.0
+        transform.transform.rotation.x = 0.0
+        transform.transform.rotation.y = 0.0
+        transform.transform.rotation.z = 0.0
+        transform.transform.rotation.w = 1.0
+
+        self.tf_broadcaster.sendTransform(transform)
+        print("Finished resetting odometry")
 
         self.NAVIGATE = 0
         self.STOP = 1
