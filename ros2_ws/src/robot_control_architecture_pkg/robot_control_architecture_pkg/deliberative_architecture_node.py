@@ -90,10 +90,13 @@ class DeliberativeArchitectureNode(Node):
             
     def set_starting_positions(self):
         # Define the "out-of-bounds" limits
-        self.minX = -1
+        self.minX = -0.2
         self.minY = -1
-        self.maxX = 1
+        self.maxX = 1.8
         self.maxY = 1
+        
+        # Define the "coin" locations
+        self.coins = [(0.2, 0), (0.4, 0), (0.6, 0), (0.8, 0), (1.0, 0)]
         
     def is_out_of_bounds(self):
         pos = self.current_pose
@@ -101,6 +104,32 @@ class DeliberativeArchitectureNode(Node):
             return False
         else:
             return True
+    
+    def check_for_coins(self):
+        """
+        Check if the character's current position is within 0.1 of any coin.
+        If so, trigger a coin collection and remove the coin from the list.
+        """
+        collected_coins = []
+
+        for coin in self.coins:
+            coin_x, coin_y = coin
+            x, y, _ = self.current_position  # Unpack current position (x, y, yaw)
+
+            # Calculate distance to the coin
+            distance = ((coin_x - x) ** 2 + (coin_y - y) ** 2) ** 0.5
+
+            # Check if within collection range (0.1)
+            if distance <= 0.1:
+                # Send a message indicating a coin was collected
+                msg = String()
+                msg.data = "COIN_COLLECTED"
+                self.mario_pub.publish(msg)
+                collected_coins.append(coin)  # Mark coin for removal
+
+        # Remove collected coins from the list
+        for coin in collected_coins:
+            self.coins.remove(coin)
 
     def control_cycle(self):
         # If odometry is not initialized yet, don't run anything
