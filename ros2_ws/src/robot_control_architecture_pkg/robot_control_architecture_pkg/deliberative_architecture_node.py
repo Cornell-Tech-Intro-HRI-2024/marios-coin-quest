@@ -76,10 +76,22 @@ class DeliberativeArchitectureNode(Node):
         if self.starting_pose is None:
             self.starting_pose = self.current_pose
             # Arbitrary target location relative to the start for testing
-            self.target_pose = (position.x + 3.0, position.y, self.quaternion_to_yaw(orientation))
+            self.target_pose = (position.x + 0.8, position.y, self.quaternion_to_yaw(orientation))
+            self.set_starting_positions()
+            
+    def set_starting_positions(self):
+        # Define the "out-of-bounds" limits
+        self.minX = self.starting_pose.x - 1
+        self.minY = self.starting_pose.y - 1
+        self.maxX = self.starting_pose.x + 1
+        self.maxY = self.starting_pose.y + 1
         
 
     def control_cycle(self):
+        # If odometry is not initialized yet, don't run anything
+        if self.starting_pose is None:
+            print("Waiting for odometry...")
+            return
 
         if self.state == self.NAVIGATE:
             print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
