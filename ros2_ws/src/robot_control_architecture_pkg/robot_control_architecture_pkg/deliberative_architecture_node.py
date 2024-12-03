@@ -80,6 +80,13 @@ class DeliberativeArchitectureNode(Node):
         self.maxX = self.starting_pose[0] + 1
         self.maxY = self.starting_pose[1] + 1
         
+    def is_out_of_bounds(self):
+        pos = self.current_pose
+        if self.minX < pos[0] < self.maxX and self.minY < pos[1] < self.maxY:
+            return False
+        else:
+            print("Out of bounds!")
+            return True
 
     def control_cycle(self):
         # If odometry is not initialized yet, don't run anything
@@ -91,7 +98,7 @@ class DeliberativeArchitectureNode(Node):
             print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
-            if is_out_of_bounds():
+            if self.is_out_of_bounds():
                 self.mario_pub.publish("OUT_OF_BOUNDS")
                 self.state = self.OUT_OF_BOUNDS
         
@@ -99,14 +106,6 @@ class DeliberativeArchitectureNode(Node):
             if not is_out_of_bounds():
                 self.mario_pub.publish("IN_BOUNDS")
                 self.state = self.NAVIGATE
-            
-    def is_out_of_bounds(self):
-        pos = self.current_pose
-        if self.minX < pos[0] < self.maxX and self.minY < pos[1] < self.maxY:
-            return False
-        else:
-            print("Out of bounds!")
-            return True
         
 def main(args=None):
     rclpy.init(args=args)
