@@ -16,9 +16,10 @@ class DeliberativeArchitectureNode(Node):
     def __init__(self):
         print("Initializing node...")
         super().__init__('deliberative_architecture_node')
-
+        
         self.NAVIGATE = 0
         self.STOP = 1
+        self.OUT_OF_BOUNDS = 2
         self.state = self.NAVIGATE
         
         # Odometry
@@ -42,7 +43,14 @@ class DeliberativeArchitectureNode(Node):
                 depth=10))
 
         # publisher
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.mario_pub = self.create_publisher(
+            String,
+            '/mario_status',
+            QoSProfile(depth=10)
+        )
+        
+        # Initialize starting positions
+        self.set_starting_positions()
         
         self.timer = self.create_timer(0.1, self.control_cycle)
         print("Finished initialization")
@@ -55,21 +63,106 @@ class DeliberativeArchitectureNode(Node):
         return math.atan2(siny_cosp, cosy_cosp)
 
     def odom_callback(self, msg):
+        """Handle incoming odometry messages and compute local space transform"""
         position = msg.pose.pose.position
         orientation = msg.pose.pose.orientation
-        self.current_pose = (position.x, position.y, self.quaternion_to_yaw(orientation))
-        # Use the first odom callback to set the starting pose for the robot
+
+        # Convert quaternion orientation to yaw
+        yaw = self.quaternion_to_yaw(orientation)
+
+        # Record the initial pose (local space origin)
         if self.starting_pose is None:
-            self.starting_pose = self.current_pose
-            self.target_pose = (position.x + 3.0, position.y, self.quaternion_to_yaw(orientation))
+            self.starting_pose = (position.x, position.y, yaw)
+            self.get_logger().info("Local space origin set: x=%.3f, y=%.3f, yaw=%.3f" %
+                                   (self.starting_pose[0], self.starting_pose[1], self.starting_pose[2]))
         
+        # Transform odometry into local space
+        dx = position.x - self.starting_pose[0]
+        dy = position.y - self.starting_pose[1]
+        dtheta = yaw - self.starting_pose[2]
+
+        # Rotate into local frame (account for initial yaw)
+        local_x = dx * math.cos(-self.starting_pose[2]) - dy * math.sin(-self.starting_pose[2])
+        local_y = dx * math.sin(-self.starting_pose[2]) + dy * math.cos(-self.starting_pose[2])
+
+        # Store the transformed pose
+        self.current_pose = (local_x, local_y, dtheta)
+            
+    def set_starting_positions(self):
+        # Define the "out-of-bounds" limits
+        self.minX = -0.2
+        self.minY = -1
+        self.maxX = 1.8
+        self.maxY = 1
+        
+        # Define the "coin" locations
+        self.coins = [(0.2, 0), (0.4, 0), (0.6, 0), (0.8, 0), (1.0, 0)]
+        
+    def is_out_of_bounds(self):
+        pos = self.current_pose
+        if self.minX < pos[0] < self.maxX and self.minY < pos[1] < self.maxY:
+            return False
+        else:
+            return True
+    
+    def check_for_coins(self):
+        """
+        Check if the character's current position is within 0.1 of any coin.
+        If so, trigger a coin collection and remove the coin from the list.
+        """
+        collected_coins = []
+
+        for coin in self.coins:
+            coin_x, coin_y = coin
+            x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
+
+            # Calculate distance to the coin
+            distance = ((coin_x - x) ** 2 + (coin_y - y) ** 2) ** 0.5
+
+            # Check if within collection range (0.1)
+            if distance <= 0.1:
+                # Send a message indicating a coin was collected
+                msg = String()
+                msg.data = "COIN_COLLECTED"
+                print("Coin collected!")
+                self.mario_pub.publish(msg)
+                collected_coins.append(coin)  # Mark coin for removal
+
+        # Remove collected coins from the list
+        for coin in collected_coins:
+            self.coins.remove(coin)
 
     def control_cycle(self):
+        # If odometry is not initialized yet, don't run anything
+        if self.starting_pose is None:
+            print("Waiting for odometry...")
+            return
 
         if self.state == self.NAVIGATE:
-            print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
+            pos = self.current_pose
+            x = pos[0]
+            y = pos[1]
+            z = pos[2]
+            print("Current pose is ", f"{x:.3g}", ", ", f"{y:.3g}", ", ", f"{z:.3g}")
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
+            if self.is_out_of_bounds():
+                msg = String()
+                msg.data = "OUT_OF_BOUNDS"
+                self.mario_pub.publish(msg)
+                self.state = self.OUT_OF_BOUNDS
+                print("Out of bounds!")
+            
+            # Check for coins
+            self.check_for_coins()
+        
+        elif self.state == self.OUT_OF_BOUNDS:
+            if not self.is_out_of_bounds():
+                msg = String()
+                msg.data = "IN_BOUNDS"
+                self.mario_pub.publish(msg)
+                self.state = self.NAVIGATE
+                print("Back in bounds!")
         
 def main(args=None):
     rclpy.init(args=args)
