@@ -124,6 +124,7 @@ class DeliberativeArchitectureNode(Node):
                 # Send a message indicating a coin was collected
                 msg = String()
                 msg.data = "COIN_COLLECTED"
+                print("Coin collected!")
                 self.mario_pub.publish(msg)
                 collected_coins.append(coin)  # Mark coin for removal
 
