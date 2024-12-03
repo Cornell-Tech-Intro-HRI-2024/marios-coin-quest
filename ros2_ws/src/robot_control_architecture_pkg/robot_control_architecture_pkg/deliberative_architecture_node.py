@@ -85,7 +85,6 @@ class DeliberativeArchitectureNode(Node):
         if self.minX < pos[0] < self.maxX and self.minY < pos[1] < self.maxY:
             return False
         else:
-            print("Out of bounds!")
             return True
 
     def control_cycle(self):
@@ -95,7 +94,11 @@ class DeliberativeArchitectureNode(Node):
             return
 
         if self.state == self.NAVIGATE:
-            print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
+            pos = self.current_pose
+            x = pos[0]
+            y = pos[1]
+            z = pos[2]
+            print("Current pose is ", f"{x:.3g}", ", ", f"{y:.3g}", ", ", f"{z:.3g}")
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
             if self.is_out_of_bounds():
@@ -103,6 +106,7 @@ class DeliberativeArchitectureNode(Node):
                 msg.data = "OUT_OF_BOUNDS"
                 self.mario_pub.publish(msg)
                 self.state = self.OUT_OF_BOUNDS
+                print("Out of bounds!")
         
         elif self.state == self.OUT_OF_BOUNDS:
             if not self.is_out_of_bounds():
@@ -110,6 +114,7 @@ class DeliberativeArchitectureNode(Node):
                 msg.data = "IN_BOUNDS"
                 self.mario_pub.publish(msg)
                 self.state = self.NAVIGATE
+                print("Back in bounds!")
         
 def main(args=None):
     rclpy.init(args=args)
