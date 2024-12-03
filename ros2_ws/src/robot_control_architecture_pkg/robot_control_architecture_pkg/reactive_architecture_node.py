@@ -30,7 +30,7 @@ class ReactiveArchitectureNode(Node):
         self.br = CvBridge()
         self.score = 0 # game score
 
-        self.coin_locations = [(1.0, 2.0), (3.5, 1.2)] #dummy coordinates where coins are placed
+        self.coin_locations = [(1.5, 0.5), (2.5, 1.0), (1.5, 1.5), (0.5, 2.0), (1.0, 2.5)] #dummy coordinates where coins are placed
         self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
 
         self.current_pose = None
@@ -182,9 +182,13 @@ class ReactiveArchitectureNode(Node):
         return reached_flag
 
     def detect_boundary(self):
-        # LIDAR check for boundaries
-        min_distance = min(self.last_scan.ranges)
-        return min_distance < self.OBSTACLE_THRESHOLD
+        if not self.current_pose:
+            return False
+        x, y = self.current_pose
+        boundary_limit = 3.048  # 10 feet in meters
+        if 0 <= x <= boundary_limit and 0 <= y <= boundary_limit: #if robot is within bounds
+            return False  # no boundary detected
+        return True  # boundary detected
     
     def detect_coin(self):
         # check if coin is detected
