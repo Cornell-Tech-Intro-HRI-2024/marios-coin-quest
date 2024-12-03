@@ -63,6 +63,12 @@ class ReactiveArchitectureNode(Node):
             '/odom',
             self.odom_callback,
             10)
+            
+        self.mario_sub = self.create_subscription(
+            String,
+            '/mario_status',
+            self.mario_callback,
+            10)
 
         # publisher
         self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -93,6 +99,9 @@ class ReactiveArchitectureNode(Node):
     def odom_callback(self, msg):
         position = msg.pose.pose.position
         self.current_pose = (position.x, position.y)
+    
+    def mario_callback(self, msg):
+        print("Recieved callback of type ", msg)
 
     def detection_callback(self, msg):
         self.detection_message = msg.data

@@ -19,6 +19,7 @@ class DeliberativeArchitectureNode(Node):
 
         self.NAVIGATE = 0
         self.STOP = 1
+        self.OUT_OF_BOUNDS = 2
         self.state = self.NAVIGATE
         
         # Odometry
@@ -42,7 +43,20 @@ class DeliberativeArchitectureNode(Node):
                 depth=10))
 
         # publisher
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.mario_pub = self.create_publisher(
+            String,
+            '/mario_status',
+            QoSProfile(depth=10)
+        )
+        
+        # Define the "out-of-bounds" limits
+        self.minX = self.starting_pose.x - 1
+        self.minY = self.starting_pose.y - 1
+        self.maxX = self.starting_pose.x + 1
+        self.maxY = self.starting_pose.y + 1
+        
+        # List of coin positions
+        
         
         self.timer = self.create_timer(0.1, self.control_cycle)
         print("Finished initialization")
@@ -61,6 +75,7 @@ class DeliberativeArchitectureNode(Node):
         # Use the first odom callback to set the starting pose for the robot
         if self.starting_pose is None:
             self.starting_pose = self.current_pose
+            # Arbitrary target location relative to the start for testing
             self.target_pose = (position.x + 3.0, position.y, self.quaternion_to_yaw(orientation))
         
 
@@ -70,6 +85,22 @@ class DeliberativeArchitectureNode(Node):
             print("Target pose is ", self.target_pose, " and current pose is ", self.current_pose)
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
+            if is_out_of_bounds():
+                self.mario_pub.publish("OUT_OF_BOUNDS")
+                self.state = self.OUT_OF_BOUNDS
+        
+        if self.state == self.OUT_OF_BOUNDS:
+            if not is_out_of_bounds():
+                self.mario_pub.publish("IN_BOUNDS")
+                self.state = self.NAVIGATE
+            
+    def is_out_of_bounds(self):
+        pos = self.current_pose
+        if self.minX < pos.x < self.maxX and self.minY < pos.y < self.maxY:
+            return False
+        else:
+            print("Out of bounds!")
+            return True
         
 def main(args=None):
     rclpy.init(args=args)
