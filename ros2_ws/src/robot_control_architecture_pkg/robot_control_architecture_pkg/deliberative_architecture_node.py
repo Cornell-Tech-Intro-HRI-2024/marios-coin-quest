@@ -75,10 +75,10 @@ class DeliberativeArchitectureNode(Node):
             
     def set_starting_positions(self):
         # Define the "out-of-bounds" limits
-        self.minX = self.starting_pose.x - 1
-        self.minY = self.starting_pose.y - 1
-        self.maxX = self.starting_pose.x + 1
-        self.maxY = self.starting_pose.y + 1
+        self.minX = self.starting_pose[0] - 1
+        self.minY = self.starting_pose[1] - 1
+        self.maxX = self.starting_pose[0] + 1
+        self.maxY = self.starting_pose[1] + 1
         
 
     def control_cycle(self):
@@ -102,7 +102,7 @@ class DeliberativeArchitectureNode(Node):
             
     def is_out_of_bounds(self):
         pos = self.current_pose
-        if self.minX < pos.x < self.maxX and self.minY < pos.y < self.maxY:
+        if self.minX < pos[0] < self.maxX and self.minY < pos[1] < self.maxY:
             return False
         else:
             print("Out of bounds!")
