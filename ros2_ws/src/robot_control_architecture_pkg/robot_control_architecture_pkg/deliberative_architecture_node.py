@@ -104,8 +104,8 @@ class DeliberativeArchitectureNode(Node):
                 self.mario_pub.publish(msg)
                 self.state = self.OUT_OF_BOUNDS
         
-        if self.state == self.OUT_OF_BOUNDS:
-            if not is_out_of_bounds():
+        elif self.state == self.OUT_OF_BOUNDS:
+            if not self.is_out_of_bounds():
                 msg = String()
                 msg.data = "IN_BOUNDS"
                 self.mario_pub.publish(msg)
