@@ -99,12 +99,16 @@ class DeliberativeArchitectureNode(Node):
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
             if self.is_out_of_bounds():
-                self.mario_pub.publish("OUT_OF_BOUNDS")
+                msg = String()
+                msg.data = "OUT_OF_BOUNDS"
+                self.mario_pub.publish(msg)
                 self.state = self.OUT_OF_BOUNDS
         
         if self.state == self.OUT_OF_BOUNDS:
             if not is_out_of_bounds():
-                self.mario_pub.publish("IN_BOUNDS")
+                msg = String()
+                msg.data = "IN_BOUNDS"
+                self.mario_pub.publish(msg)
                 self.state = self.NAVIGATE
         
 def main(args=None):
