@@ -140,7 +140,7 @@ class ReactiveArchitectureNode(Node):
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
         print("Green: ", count)
-        return count > 20000
+        return count > 12000
         
     def green_obstacle_gone(self):
         # analyze RGB image to detect green obstacles
@@ -150,7 +150,7 @@ class ReactiveArchitectureNode(Node):
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
         print("Green: ", count)
-        return count < 10000
+        return count < 5000
 
     def detect_red_obstacle(self):
         # analyze RGB image to detect red obstacles
@@ -163,7 +163,7 @@ class ReactiveArchitectureNode(Node):
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         print("Red: ", count)
-        return count > 20000
+        return count > 14000
         
     def red_obstacle_gone(self):
         # analyze RGB image to detect red obstacles
@@ -176,7 +176,7 @@ class ReactiveArchitectureNode(Node):
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         print("Red: ", count)
-        return count < 10000
+        return count < 7000
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
