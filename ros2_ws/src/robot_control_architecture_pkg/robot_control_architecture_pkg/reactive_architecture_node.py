@@ -123,8 +123,6 @@ class ReactiveArchitectureNode(Node):
             twist.angular.z = self.ANGULAR_SPEED
             print(f"Yay, we did it! Your high score is {self.score}")
             if time.time() - self.celebrate_start_time >= 3.0: #if celebration is longer than 5 seconds
-                twist.linear.x = 0
-                twist.angular.z = 0
                 self.state = self.STOP
 
         elif self.state == self.COLLECT_COIN:
