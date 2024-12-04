@@ -72,7 +72,6 @@ class ReactiveArchitectureNode(Node):
 
         self.last_scan = None
         self.last_rgb_image = None
-        self.last_depth_image = None
         self.detection_message = None
 
     def scan_callback(self, msg):
@@ -83,12 +82,6 @@ class ReactiveArchitectureNode(Node):
             self.last_rgb_image = self.br.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         except cv2.error as e:
             self.get_logger().error(f"Failed to convert RGB image {e}")
-
-    def depth_callback(self, msg):
-        try:
-            self.last_depth_image = self.br.imgmsg_to_cv2(msg, desired_encoding='32FC1')
-        except cv2.error as e:
-            self.get_logger().error(f"Failed to convert Depth image {e}")
     
     def mario_callback(self, msg):
         str = msg.data
@@ -104,7 +97,8 @@ class ReactiveArchitectureNode(Node):
         self.detection_message = msg.data
 
     def control_cycle(self):
-        if not self.last_scan or not self.last_rgb_image or not self.last_depth_image:
+        if not self.last_scan or not self.last_rgb_image:
+            print("Missing subscribers...")
             return
 
         twist = Twist()
