@@ -65,7 +65,6 @@ class ReactiveArchitectureNode(Node):
         # control loop timer
         self.timer = self.create_timer(0.1, self.control_cycle)
 
-        self.last_scan = None
         self.last_rgb_image = None
         self.detection_message = None
 
@@ -98,11 +97,10 @@ class ReactiveArchitectureNode(Node):
         twist = Twist()
         if self.state == self.NAVIGATE:
             twist.linear.x = self.LINEAR_SPEED
-            if self.is_obstacle_ahead():
-                if self.detect_red_obstacle():
-                    self.state = self.TURN_RIGHT
-                elif self.detect_green_obstacle():
-                    self.state = self.TURN_LEFT
+            if self.detect_red_obstacle():
+                self.state = self.TURN_RIGHT
+            elif self.detect_green_obstacle():
+                self.state = self.TURN_LEFT
 
         elif self.state == self.TURN_LEFT:
             twist.angular.z = self.ANGULAR_SPEED
@@ -133,9 +131,6 @@ class ReactiveArchitectureNode(Node):
             self.state = self.NAVIGATE
 
         self.vel_pub.publish(twist)
-
-    def is_obstacle_ahead(self):
-        return min(self.last_scan.ranges) < self.OBSTACLE_THRESHOLD
 
     def detect_green_obstacle(self):
         # analyze RGB image to detect green obstacles
