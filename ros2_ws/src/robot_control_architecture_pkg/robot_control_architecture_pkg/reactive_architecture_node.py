@@ -168,13 +168,10 @@ class ReactiveArchitectureNode(Node):
     def red_obstacle_gone(self):
         # analyze RGB image to detect red obstacles
         hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_red1 = (0, 120, 70)
-        upper_red1 = (10, 255, 255)
-        lower_red2 = (170, 120, 70)
-        upper_red2 = (180, 255, 255)
+        lower_red1 = (50, 23, 10)
+        upper_red1 = (175, 80, 40)
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
-        mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
-        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
+        count = (cv2.countNonZero(mask1))
         print("Red: ", count)
         return count < 7000
 
