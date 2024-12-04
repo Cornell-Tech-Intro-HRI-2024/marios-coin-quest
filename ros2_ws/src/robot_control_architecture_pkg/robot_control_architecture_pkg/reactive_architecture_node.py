@@ -93,10 +93,6 @@ class ReactiveArchitectureNode(Node):
     def control_cycle(self):
         if self.last_rgb_image is None:
             return
-            
-        self.detect_brown_obstacle()
-        self.detect_green_obstacle()
-        return
 
         twist = Twist()
         if self.state == self.NAVIGATE:
@@ -143,7 +139,7 @@ class ReactiveArchitectureNode(Node):
         upper_green = (86, 255, 255)
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
-        print("Green: ", count)
+        # print("Green: ", count)
         return count > 12000
         
     def green_obstacle_gone(self):
@@ -153,7 +149,7 @@ class ReactiveArchitectureNode(Node):
         upper_green = (86, 255, 255)
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
-        print("Green: ", count)
+        # print("Green: ", count)
         return count < 5000
     
     def detect_brown_obstacle(self):
@@ -166,7 +162,7 @@ class ReactiveArchitectureNode(Node):
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
-        print("Brown: ", count)
+        # print("Brown: ", count)
         return count > 14000
     
     def brown_obstacle_gone(self):
@@ -179,7 +175,7 @@ class ReactiveArchitectureNode(Node):
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
-        print("Brown: ", count)
+        # print("Brown: ", count)
         return count < 7000
 
     def euclidean_distance(self, pose, target):
