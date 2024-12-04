@@ -135,7 +135,7 @@ class DeliberativeArchitectureNode(Node):
         flag_x, flag_y = (2.6, -2.6)
         
         # Calculate distance to the flag
-        distance = ((flag_x - x) ** 2 + (flag - y) ** 2) ** 0.5
+        distance = ((flag_x - x) ** 2 + (flag_y - y) ** 2) ** 0.5
         
         # Check if within range (0.3)
         if distance <= 0.3:
