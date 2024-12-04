@@ -83,6 +83,7 @@ class ReactiveArchitectureNode(Node):
         if str == "OUT_OF_BOUNDS":
             self.state = self.OUT_OF_BOUNDS
         if str == "COLLECT_COIN":
+            self.score += 100
             self.state = self.COLLECT_COIN
         if str == "REACHED_FLAG":
             self.celebrate_start_time = time.time()

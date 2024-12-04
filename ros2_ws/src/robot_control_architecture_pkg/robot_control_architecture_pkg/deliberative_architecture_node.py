@@ -118,7 +118,7 @@ class DeliberativeArchitectureNode(Node):
             distance = ((coin_x - x) ** 2 + (coin_y - y) ** 2) ** 0.5
 
             # Check if within collection range (0.1)
-            if distance <= 0.5:
+            if distance <= 1.0:
                 # Send a message indicating a coin was collected
                 msg = String()
                 msg.data = "COIN_COLLECTED"
