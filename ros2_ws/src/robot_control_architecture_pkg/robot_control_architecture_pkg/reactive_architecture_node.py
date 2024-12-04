@@ -92,11 +92,12 @@ class ReactiveArchitectureNode(Node):
         self.detection_message = msg.data
 
     def control_cycle(self):
-        if self.last_rgb_image:
-            self.detect_green_obstacle()
-            self.detect_red_obstacle()
-        if not self.last_scan or not self.last_rgb_image:
+        if not self.last_rgb_image:
             return
+            
+        self.detect_green_obstacle()
+        self.detect_red_obstacle()
+        return
 
         twist = Twist()
         if self.state == self.NAVIGATE:
