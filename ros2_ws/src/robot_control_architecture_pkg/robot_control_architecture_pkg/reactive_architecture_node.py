@@ -35,6 +35,7 @@ class ReactiveArchitectureNode(Node):
         self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
 
         self.celebrate_start_time = None #track celebration time
+        self.coin_start_time = None # track coin collection celebration
 
         self.scan_sub = self.create_subscription(
             LaserScan,
@@ -84,6 +85,7 @@ class ReactiveArchitectureNode(Node):
         if str == "COLLECT_COIN":
             self.state = self.COLLECT_COIN
         if str == "REACHED_FLAG":
+            self.celebrate_start_time = time.time()
             self.state = self.CELEBRATE
         print("Recieved callback of type ", msg)
 
@@ -126,9 +128,10 @@ class ReactiveArchitectureNode(Node):
                 self.state = self.STOP
 
         elif self.state == self.COLLECT_COIN:
-            self.score += 500
-            print(f"New score: {self.score}")
-            self.state = self.NAVIGATE
+            if time.time() - self.coin_start_time >= 1.5:
+                self.score += 500
+                print(f"New score: {self.score}")
+                self.state = self.NAVIGATE
 
         self.vel_pub.publish(twist)
 

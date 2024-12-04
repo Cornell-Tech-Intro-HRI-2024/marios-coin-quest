@@ -132,7 +132,7 @@ class DeliberativeArchitectureNode(Node):
             
     def check_for_flag():
         x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
-        flag_x, flag_y = (2.6, 0)
+        flag_x, flag_y = (2.6, -2.6)
         
         # Calculate distance to the flag
         distance = ((flag_x - x) ** 2 + (flag - y) ** 2) ** 0.5
@@ -170,6 +170,9 @@ class DeliberativeArchitectureNode(Node):
             
             # Check for coins
             self.check_for_coins()
+            
+            # Check for flag
+            self.check_for_flag()
         
         elif self.state == self.OUT_OF_BOUNDS:
             if not self.is_out_of_bounds():
