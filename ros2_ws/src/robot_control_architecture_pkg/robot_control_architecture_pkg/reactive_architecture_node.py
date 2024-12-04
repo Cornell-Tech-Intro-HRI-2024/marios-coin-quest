@@ -93,7 +93,8 @@ class ReactiveArchitectureNode(Node):
 
     def control_cycle(self):
         if not self.last_scan or not self.last_rgb_image:
-            print("Missing subscribers...")
+            self.detect_green_obstacle()
+            self.detect_red_obstacle()
             return
 
         twist = Twist()
@@ -144,7 +145,9 @@ class ReactiveArchitectureNode(Node):
         lower_green = (36, 100, 100)
         upper_green = (86, 255, 255)
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
-        return cv2.countNonZero(mask) > 1000
+        count = cv2.countNonZero(mask)
+        print("Green: ", count)
+        return count > 1000
 
     def detect_red_obstacle(self):
         # analyze RGB image to detect red obstacles
@@ -155,7 +158,9 @@ class ReactiveArchitectureNode(Node):
         upper_red2 = (180, 255, 255)
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
-        return (cv2.countNonZero(mask1) + cv2.countNonZero(mask2)) > 1000
+        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
+        print("Red: ", count)
+        return count > 1000
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
