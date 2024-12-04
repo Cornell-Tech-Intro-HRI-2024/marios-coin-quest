@@ -94,9 +94,9 @@ class ReactiveArchitectureNode(Node):
         str = msg.data
         if str == "OUT_OF_BOUNDS":
             self.state = self.OUT_OF_BOUNDS
-        if str == "COLLECT_COIN"
+        if str == "COLLECT_COIN":
             self.state = self.COLLECT_COIN
-        if str == "REACHED_FLAG"
+        if str == "REACHED_FLAG":
             self.state = self.CELEBRATE
         print("Recieved callback of type ", msg)
 
