@@ -73,8 +73,6 @@ class DeliberativeArchitectureNode(Node):
         # Record the initial pose (local space origin)
         if self.starting_pose is None:
             self.starting_pose = (position.x, position.y, yaw)
-            self.get_logger().info("Local space origin set: x=%.3f, y=%.3f, yaw=%.3f" %
-                                   (self.starting_pose[0], self.starting_pose[1], self.starting_pose[2]))
         
         # Transform odometry into local space
         dx = position.x - self.starting_pose[0]

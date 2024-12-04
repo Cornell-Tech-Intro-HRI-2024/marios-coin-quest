@@ -108,7 +108,6 @@ class ReactiveArchitectureNode(Node):
             return
 
         twist = Twist()
-        self.get_logger().info("Reactive node in state ", self.state)
         if self.state == self.NAVIGATE:
             twist.linear.x = self.LINEAR_SPEED
             if self.is_obstacle_ahead():
