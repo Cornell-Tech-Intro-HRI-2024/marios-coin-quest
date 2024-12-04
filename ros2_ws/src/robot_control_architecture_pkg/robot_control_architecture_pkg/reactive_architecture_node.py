@@ -159,8 +159,8 @@ class ReactiveArchitectureNode(Node):
     def detect_brown_obstacle(self):
         # analyze RGB image to detect brown obstacles (i.e. bricks)
         hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_brown = (0, 30, 20)
-        upper_brown = (40, 255, 255)
+        lower_brown = (0, 30, 50)
+        upper_brown = (20, 255, 180)
         mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
         count = cv2.countNonZero(mask)
         print("Brown: ", count)
