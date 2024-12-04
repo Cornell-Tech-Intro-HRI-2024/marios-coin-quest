@@ -92,7 +92,7 @@ class ReactiveArchitectureNode(Node):
         self.detection_message = msg.data
 
     def control_cycle(self):
-        if self.last_rgb_image == None:
+        if self.last_rgb_image is None:
             return
             
         self.detect_green_obstacle()
