@@ -159,20 +159,26 @@ class ReactiveArchitectureNode(Node):
     def detect_brown_obstacle(self):
         # analyze RGB image to detect brown obstacles (i.e. bricks)
         hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_brown = (0, 30, 50)
-        upper_brown = (20, 255, 180)
-        mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
-        count = cv2.countNonZero(mask)
+        lower_red1 = (0, 120, 70)
+        upper_red1 = (10, 255, 255)
+        lower_red2 = (170, 120, 70)
+        upper_red2 = (180, 255, 255)
+        mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
+        mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
+        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         print("Brown: ", count)
         return count > 14000
     
     def brown_obstacle_gone(self):
         # analyze RGB image to detect brown obstacles (i.e. bricks)
         hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_brown = (10, 50, 50)
-        upper_brown = (50, 255, 255)
-        mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
-        count = cv2.countNonZero(mask)
+        lower_red1 = (0, 120, 70)
+        upper_red1 = (10, 255, 255)
+        lower_red2 = (170, 120, 70)
+        upper_red2 = (180, 255, 255)
+        mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
+        mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
+        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         print("Brown: ", count)
         return count < 7000
 
