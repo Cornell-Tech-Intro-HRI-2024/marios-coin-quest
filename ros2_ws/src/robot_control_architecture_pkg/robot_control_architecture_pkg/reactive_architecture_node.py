@@ -31,7 +31,7 @@ class ReactiveArchitectureNode(Node):
         self.br = CvBridge()
         self.score = 0 # game score
 
-        self.coin_locations = [(1.5, 0.5), (2.5, 1.0), (1.5, 1.5), (0.5, 2.0), (1.0, 2.5)] #dummy coordinates where coins are placed
+        self.coin_locations = [(1.0, 2.0), (3.5, 1.2)] #dummy coordinates where coins are placed
         self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
 
         self.celebrate_start_time = None #track celebration time

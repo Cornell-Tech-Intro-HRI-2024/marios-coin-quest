@@ -73,11 +73,6 @@ class DeliberativeArchitectureNode(Node):
         # Record the initial pose (local space origin)
         if self.starting_pose is None:
             self.starting_pose = (position.x, position.y, yaw)
-<<<<<<< HEAD
-            self.get_logger().info("Local space origin set: x=%.3f, y=%.3f, yaw=%.3f" %
-                                (self.starting_pose[0], self.starting_pose[1], self.starting_pose[2]))
-=======
->>>>>>> 6d48b1d67f156d8b72747f738a1ba8f658875cb5
         
         # Transform odometry into local space
         dx = position.x - self.starting_pose[0]
@@ -99,8 +94,7 @@ class DeliberativeArchitectureNode(Node):
         self.maxY = 1.5
         
         # Define the "coin" locations
-        self.coins = [(2.0, 1.0), (2.0, 1.75), (1.0, 2.0), (1.25, 2.75), (2.75, 2.75)]
-        # old coin locations: [(0.2, 0), (0.4, 0), (0.6, 0), (0.8, 0), (1.0, 0)]
+        self.coins = [(2.0, 0.6), (2.6, 1.5), (0.8, 2.0), (0.7, 2.25), (2.2, 2.5)]
         
     def is_out_of_bounds(self):
         pos = self.current_pose
@@ -197,4 +191,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
