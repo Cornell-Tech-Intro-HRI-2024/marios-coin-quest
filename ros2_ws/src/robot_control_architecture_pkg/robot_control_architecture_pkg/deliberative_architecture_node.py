@@ -130,7 +130,7 @@ class DeliberativeArchitectureNode(Node):
         for coin in collected_coins:
             self.coins.remove(coin)
             
-    def check_for_flag():
+    def check_for_flag(self):
         x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
         flag_x, flag_y = (2.6, -2.6)
         
