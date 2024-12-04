@@ -89,9 +89,9 @@ class DeliberativeArchitectureNode(Node):
     def set_starting_positions(self):
         # Define the "out-of-bounds" limits
         self.minX = -0.2
-        self.minY = -1.5
+        self.minY = -2.8
         self.maxX = 2.8
-        self.maxY = 1.5
+        self.maxY = 0.2
         
         # Define the "coin" locations
         self.coins = [(2.0, -0.6), (2.6, -1.5), (0.8, -2.0), (0.7, -2.25), (2.2, -2.5)]
@@ -132,7 +132,7 @@ class DeliberativeArchitectureNode(Node):
             
     def check_for_flag():
         x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
-        flag_x, flag_y = (2.8, -2.8)
+        flag_x, flag_y = (2.6, 0)
         
         # Calculate distance to the flag
         distance = ((flag_x - x) ** 2 + (flag - y) ** 2) ** 0.5
@@ -151,8 +151,9 @@ class DeliberativeArchitectureNode(Node):
         if self.starting_pose is None:
             print("Waiting for odometry...")
             return
-        print("We're gaming")
+        
         if self.state == self.NAVIGATE:
+            print(self.current_pose)
             pos = self.current_pose
             x = pos[0]
             y = pos[1]
