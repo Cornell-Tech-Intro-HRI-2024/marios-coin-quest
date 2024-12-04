@@ -72,7 +72,7 @@ class DeliberativeArchitectureNode(Node):
 
         # Record the initial pose (local space origin)
         if self.starting_pose is None:
-            self.starting_pose = (position.x, position.y, yaw)
+            self.starting_pose = (position.x - 0.1, position.y + 0.1, yaw)
         
         # Transform odometry into local space
         dx = position.x - self.starting_pose[0]
@@ -94,7 +94,7 @@ class DeliberativeArchitectureNode(Node):
         self.maxY = 1.5
         
         # Define the "coin" locations
-        self.coins = [(2.0, 0.6), (2.6, 1.5), (0.8, 2.0), (0.7, 2.25), (2.2, 2.5)]
+        self.coins = [(2.0, -0.6), (2.6, -1.5), (0.8, -2.0), (0.7, -2.25), (2.2, -2.5)]
         
     def is_out_of_bounds(self):
         pos = self.current_pose
@@ -132,7 +132,7 @@ class DeliberativeArchitectureNode(Node):
             
     def check_for_flag():
         x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
-        flag_x, flag_y = (2.6, -1.3)
+        flag_x, flag_y = (2.8, -2.8)
         
         # Calculate distance to the flag
         distance = ((flag_x - x) ** 2 + (flag - y) ** 2) ** 0.5
