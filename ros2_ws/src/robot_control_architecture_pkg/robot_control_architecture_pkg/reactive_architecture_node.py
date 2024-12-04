@@ -47,11 +47,6 @@ class ReactiveArchitectureNode(Node):
             '/color/image', 
             self.rgb_callback, 10)
 
-        self.depth_sub = self.create_subscription(
-            Image,
-            '/stereo/depth', 
-            self.depth_callback, 10)
-
         self.detection_sub = self.create_subscription(
             String,
             '/color/mobilenet_detections',
