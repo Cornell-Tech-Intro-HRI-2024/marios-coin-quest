@@ -25,7 +25,7 @@ class ReactiveArchitectureNode(Node):
         self.state = self.NAVIGATE
 
         self.LINEAR_SPEED = 0.3
-        self.ANGULAR_SPEED = 0.5
+        self.ANGULAR_SPEED = 1.0
         self.OBSTACLE_THRESHOLD = 0.5
 
         self.br = CvBridge()
@@ -150,7 +150,7 @@ class ReactiveArchitectureNode(Node):
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
         # print("Green: ", count)
-        return count < 5000
+        return count < 2000
     
     def detect_brown_obstacle(self):
         # analyze RGB image to detect brown obstacles (i.e. bricks)
@@ -176,7 +176,7 @@ class ReactiveArchitectureNode(Node):
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         # print("Brown: ", count)
-        return count < 7000
+        return count < 3000
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
