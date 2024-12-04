@@ -94,10 +94,6 @@ class ReactiveArchitectureNode(Node):
     def control_cycle(self):
         if self.last_rgb_image is None:
             return
-            
-        self.detect_green_obstacle()
-        self.detect_red_obstacle()
-        return
 
         twist = Twist()
         if self.state == self.NAVIGATE:
@@ -110,12 +106,12 @@ class ReactiveArchitectureNode(Node):
 
         elif self.state == self.TURN_LEFT:
             twist.angular.z = self.ANGULAR_SPEED
-            if not self.is_obstacle_ahead():
+            if self.green_obstacle_gone():
                 self.state = self.NAVIGATE
 
         elif self.state == self.TURN_RIGHT:
             twist.angular.z = -self.ANGULAR_SPEED
-            if not self.is_obstacle_ahead():
+            if self.red_obstacle_gone():
                 self.state = self.NAVIGATE
 
         elif self.state == self.STOP:
@@ -149,7 +145,17 @@ class ReactiveArchitectureNode(Node):
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
         count = cv2.countNonZero(mask)
         print("Green: ", count)
-        return count > 1000
+        return count > 20000
+        
+    def green_obstacle_gone(self):
+        # analyze RGB image to detect green obstacles
+        hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
+        lower_green = (36, 100, 100)
+        upper_green = (86, 255, 255)
+        mask = cv2.inRange(hsv_image, lower_green, upper_green)
+        count = cv2.countNonZero(mask)
+        print("Green: ", count)
+        return count < 10000
 
     def detect_red_obstacle(self):
         # analyze RGB image to detect red obstacles
@@ -162,7 +168,20 @@ class ReactiveArchitectureNode(Node):
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
         print("Red: ", count)
-        return count > 1000
+        return count > 20000
+        
+    def red_obstacle_gone(self):
+        # analyze RGB image to detect red obstacles
+        hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
+        lower_red1 = (0, 120, 70)
+        upper_red1 = (10, 255, 255)
+        lower_red2 = (170, 120, 70)
+        upper_red2 = (180, 255, 255)
+        mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
+        mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
+        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
+        print("Red: ", count)
+        return count < 10000
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
