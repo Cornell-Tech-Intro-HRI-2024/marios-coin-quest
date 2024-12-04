@@ -144,14 +144,14 @@ class DeliberativeArchitectureNode(Node):
             msg.data = "REACHED_FLAG"
             print("Reached flag!")
             self.mario_pub.publish(msg)
-            collected_coins.append(coin)  # Mark coin for removal
+            self.state = self.STOP
 
     def control_cycle(self):
         # If odometry is not initialized yet, don't run anything
         if self.starting_pose is None:
             print("Waiting for odometry...")
             return
-
+        print("We're gaming")
         if self.state == self.NAVIGATE:
             pos = self.current_pose
             x = pos[0]
