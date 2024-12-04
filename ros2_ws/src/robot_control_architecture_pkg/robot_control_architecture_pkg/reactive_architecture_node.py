@@ -21,6 +21,7 @@ class ReactiveArchitectureNode(Node):
         self.STOP = 3
         self.CELEBRATE = 4
         self.COLLECT_COIN = 5
+        self.OUT_OF_BOUNDS = 6
         self.state = self.NAVIGATE
 
         self.LINEAR_SPEED = 0.3
@@ -33,7 +34,6 @@ class ReactiveArchitectureNode(Node):
         self.coin_locations = [(1.0, 2.0), (3.5, 1.2)] #dummy coordinates where coins are placed
         self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
 
-        self.current_pose = None
         self.celebrate_start_time = None #track celebration time
 
         self.scan_sub = self.create_subscription(
@@ -56,12 +56,6 @@ class ReactiveArchitectureNode(Node):
             String,
             '/color/mobilenet_detections',
             self.detection_callback,
-            10)
-        
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            '/odom',
-            self.odom_callback,
             10)
             
         self.mario_sub = self.create_subscription(
@@ -95,12 +89,15 @@ class ReactiveArchitectureNode(Node):
             self.last_depth_image = self.br.imgmsg_to_cv2(msg, desired_encoding='32FC1')
         except cv2.error as e:
             self.get_logger().error(f"Failed to convert Depth image {e}")
-
-    def odom_callback(self, msg):
-        position = msg.pose.pose.position
-        self.current_pose = (position.x, position.y)
     
     def mario_callback(self, msg):
+        str = msg.data
+        if str == "OUT_OF_BOUNDS":
+            self.state = self.OUT_OF_BOUNDS
+        if str == "COLLECT_COIN"
+            self.state = self.COLLECT_COIN
+        if str == "REACHED_FLAG"
+            self.state = self.CELEBRATE
         print("Recieved callback of type ", msg)
 
     def detection_callback(self, msg):
@@ -119,12 +116,6 @@ class ReactiveArchitectureNode(Node):
                     self.state = self.TURN_RIGHT
                 elif self.detect_green_obstacle():
                     self.state = self.TURN_LEFT
-            elif self.detect_flag():
-                self.state = self.CELEBRATE
-            elif self.detect_coin():
-                self.state = self.COLLECT_COIN
-            elif self.detect_boundary():
-                self.state = self.STOP
 
         elif self.state == self.TURN_LEFT:
             twist.angular.z = self.ANGULAR_SPEED
@@ -144,15 +135,14 @@ class ReactiveArchitectureNode(Node):
         elif self.state == self.CELEBRATE:
             twist.angular.z = self.ANGULAR_SPEED
             print(f"Yay, we did it! Your high score is {self.score}")
-            if time.time() - self.celebrate_start_time >= 5.0: #if celebration is longer than 5 seconds
+            if time.time() - self.celebrate_start_time >= 3.0: #if celebration is longer than 5 seconds
                 twist.linear.x = 0
                 twist.angular.z = 0
                 self.state = self.STOP
 
         elif self.state == self.COLLECT_COIN:
-            if self.is_coin_within_reach():
-                self.score += 500
-                print(f"New score: {self.score}")
+            self.score += 500
+            print(f"New score: {self.score}")
             self.state = self.NAVIGATE
 
         self.vel_pub.publish(twist)
@@ -178,34 +168,6 @@ class ReactiveArchitectureNode(Node):
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
         return (cv2.countNonZero(mask1) + cv2.countNonZero(mask2)) > 1000
-
-    def detect_flag(self):
-        # analyze RGB image to detect black flag
-        hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_black = (0, 0, 0)
-        upper_black = (180, 255, 30)
-        mask = cv2.inRange(hsv_image, lower_black, upper_black)
-        reached_flag = cv2.countNonZero(mask) > 1000
-        if reached_flag:
-            self.score += 1500
-        return reached_flag
-
-    def detect_boundary(self):
-        # LIDAR check for boundaries
-        min_distance = min(self.last_scan.ranges)
-        return min_distance < self.OBSTACLE_THRESHOLD
-    
-    def detect_coin(self):
-        # check if coin is detected
-        return "coin" in self.detection_message if self.detection_message else False
-    
-    def is_coin_within_reach(self):
-        if not self.current_pose:
-            return False
-        for coin_location in self.coin_locations:
-            if self.euclidean_distance(self.current_pose, coin_location) < self.coin_tolerance:
-                return True
-        return False
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)
