@@ -21,6 +21,7 @@ class ReactiveArchitectureNode(Node):
         self.STOP = 3
         self.CELEBRATE = 4
         self.COLLECT_COIN = 5
+        self.OUT_OF_BOUNDS = 6
         self.state = self.NAVIGATE
 
         self.LINEAR_SPEED = 0.3
@@ -33,7 +34,6 @@ class ReactiveArchitectureNode(Node):
         self.coin_locations = [(1.5, 0.5), (2.5, 1.0), (1.5, 1.5), (0.5, 2.0), (1.0, 2.5)] #dummy coordinates where coins are placed
         self.coin_tolerance = 0.1 #coordinate tolerance for detecting coin collection
 
-        self.current_pose = None
         self.celebrate_start_time = None #track celebration time
 
         self.scan_sub = self.create_subscription(
@@ -47,21 +47,10 @@ class ReactiveArchitectureNode(Node):
             '/color/image', 
             self.rgb_callback, 10)
 
-        self.depth_sub = self.create_subscription(
-            Image,
-            '/stereo/depth', 
-            self.depth_callback, 10)
-
         self.detection_sub = self.create_subscription(
             String,
             '/color/mobilenet_detections',
             self.detection_callback,
-            10)
-        
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            '/odom',
-            self.odom_callback,
             10)
             
         self.mario_sub = self.create_subscription(
@@ -76,9 +65,7 @@ class ReactiveArchitectureNode(Node):
         # control loop timer
         self.timer = self.create_timer(0.1, self.control_cycle)
 
-        self.last_scan = None
         self.last_rgb_image = None
-        self.last_depth_image = None
         self.detection_message = None
 
     def scan_callback(self, msg):
@@ -89,51 +76,40 @@ class ReactiveArchitectureNode(Node):
             self.last_rgb_image = self.br.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         except cv2.error as e:
             self.get_logger().error(f"Failed to convert RGB image {e}")
-
-    def depth_callback(self, msg):
-        try:
-            self.last_depth_image = self.br.imgmsg_to_cv2(msg, desired_encoding='32FC1')
-        except cv2.error as e:
-            self.get_logger().error(f"Failed to convert Depth image {e}")
-
-    def odom_callback(self, msg):
-        position = msg.pose.pose.position
-        self.current_pose = (position.x, position.y)
     
     def mario_callback(self, msg):
+        str = msg.data
+        if str == "OUT_OF_BOUNDS":
+            self.state = self.OUT_OF_BOUNDS
+        if str == "COLLECT_COIN":
+            self.state = self.COLLECT_COIN
+        if str == "REACHED_FLAG":
+            self.state = self.CELEBRATE
         print("Recieved callback of type ", msg)
 
     def detection_callback(self, msg):
         self.detection_message = msg.data
 
     def control_cycle(self):
-        if not self.last_scan or not self.last_rgb_image or not self.last_depth_image:
+        if self.last_rgb_image is None:
             return
 
         twist = Twist()
-
         if self.state == self.NAVIGATE:
             twist.linear.x = self.LINEAR_SPEED
-            if self.is_obstacle_ahead():
-                if self.detect_red_obstacle():
-                    self.state = self.TURN_RIGHT
-                elif self.detect_green_obstacle():
-                    self.state = self.TURN_LEFT
-            elif self.detect_flag():
-                self.state = self.CELEBRATE
-            elif self.detect_coin():
-                self.state = self.COLLECT_COIN
-            elif self.detect_boundary():
-                self.state = self.STOP
+            if self.detect_red_obstacle():
+                self.state = self.TURN_RIGHT
+            elif self.detect_green_obstacle():
+                self.state = self.TURN_LEFT
 
         elif self.state == self.TURN_LEFT:
             twist.angular.z = self.ANGULAR_SPEED
-            if not self.is_obstacle_ahead():
+            if self.green_obstacle_gone():
                 self.state = self.NAVIGATE
 
         elif self.state == self.TURN_RIGHT:
             twist.angular.z = -self.ANGULAR_SPEED
-            if not self.is_obstacle_ahead():
+            if self.red_obstacle_gone():
                 self.state = self.NAVIGATE
 
         elif self.state == self.STOP:
@@ -144,21 +120,17 @@ class ReactiveArchitectureNode(Node):
         elif self.state == self.CELEBRATE:
             twist.angular.z = self.ANGULAR_SPEED
             print(f"Yay, we did it! Your high score is {self.score}")
-            if time.time() - self.celebrate_start_time >= 5.0: #if celebration is longer than 5 seconds
+            if time.time() - self.celebrate_start_time >= 3.0: #if celebration is longer than 5 seconds
                 twist.linear.x = 0
                 twist.angular.z = 0
                 self.state = self.STOP
 
         elif self.state == self.COLLECT_COIN:
-            if self.is_coin_within_reach():
-                self.score += 500
-                print(f"New score: {self.score}")
+            self.score += 500
+            print(f"New score: {self.score}")
             self.state = self.NAVIGATE
 
         self.vel_pub.publish(twist)
-
-    def is_obstacle_ahead(self):
-        return min(self.last_scan.ranges) < self.OBSTACLE_THRESHOLD
 
     def detect_green_obstacle(self):
         # analyze RGB image to detect green obstacles
@@ -166,7 +138,19 @@ class ReactiveArchitectureNode(Node):
         lower_green = (36, 100, 100)
         upper_green = (86, 255, 255)
         mask = cv2.inRange(hsv_image, lower_green, upper_green)
-        return cv2.countNonZero(mask) > 1000
+        count = cv2.countNonZero(mask)
+        print("Green: ", count)
+        return count > 12000
+        
+    def green_obstacle_gone(self):
+        # analyze RGB image to detect green obstacles
+        hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
+        lower_green = (36, 100, 100)
+        upper_green = (86, 255, 255)
+        mask = cv2.inRange(hsv_image, lower_green, upper_green)
+        count = cv2.countNonZero(mask)
+        print("Green: ", count)
+        return count < 5000
 
     def detect_red_obstacle(self):
         # analyze RGB image to detect red obstacles
@@ -177,39 +161,19 @@ class ReactiveArchitectureNode(Node):
         upper_red2 = (180, 255, 255)
         mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
         mask2 = cv2.inRange(hsv_image, lower_red2, upper_red2)
-        return (cv2.countNonZero(mask1) + cv2.countNonZero(mask2)) > 1000
-
-    def detect_flag(self):
-        # analyze RGB image to detect black flag
+        count = (cv2.countNonZero(mask1) + cv2.countNonZero(mask2))
+        print("Red: ", count)
+        return count > 14000
+        
+    def red_obstacle_gone(self):
+        # analyze RGB image to detect red obstacles
         hsv_image = cv2.cvtColor(self.last_rgb_image, cv2.COLOR_BGR2HSV)
-        lower_black = (0, 0, 0)
-        upper_black = (180, 255, 30)
-        mask = cv2.inRange(hsv_image, lower_black, upper_black)
-        reached_flag = cv2.countNonZero(mask) > 1000
-        if reached_flag:
-            self.score += 1500
-        return reached_flag
-
-    def detect_boundary(self):
-        if not self.current_pose:
-            return False
-        x, y = self.current_pose
-        boundary_limit = 3.048  # 10 feet in meters
-        if 0 <= x <= boundary_limit and 0 <= y <= boundary_limit: #if robot is within bounds
-            return False  # no boundary detected
-        return True  # boundary detected
-    
-    def detect_coin(self):
-        # check if coin is detected
-        return "coin" in self.detection_message if self.detection_message else False
-    
-    def is_coin_within_reach(self):
-        if not self.current_pose:
-            return False
-        for coin_location in self.coin_locations:
-            if self.euclidean_distance(self.current_pose, coin_location) < self.coin_tolerance:
-                return True
-        return False
+        lower_red1 = (50, 23, 10)
+        upper_red1 = (175, 80, 40)
+        mask1 = cv2.inRange(hsv_image, lower_red1, upper_red1)
+        count = (cv2.countNonZero(mask1))
+        print("Red: ", count)
+        return count < 7000
 
     def euclidean_distance(self, pose, target):
         return math.sqrt((pose[0] - target[0])**2 + (pose[1] - target[1])**2)

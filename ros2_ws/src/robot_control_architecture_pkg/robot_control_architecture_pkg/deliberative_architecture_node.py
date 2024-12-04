@@ -73,8 +73,11 @@ class DeliberativeArchitectureNode(Node):
         # Record the initial pose (local space origin)
         if self.starting_pose is None:
             self.starting_pose = (position.x, position.y, yaw)
+<<<<<<< HEAD
             self.get_logger().info("Local space origin set: x=%.3f, y=%.3f, yaw=%.3f" %
                                 (self.starting_pose[0], self.starting_pose[1], self.starting_pose[2]))
+=======
+>>>>>>> 6d48b1d67f156d8b72747f738a1ba8f658875cb5
         
         # Transform odometry into local space
         dx = position.x - self.starting_pose[0]
@@ -91,9 +94,9 @@ class DeliberativeArchitectureNode(Node):
     def set_starting_positions(self):
         # Define the "out-of-bounds" limits
         self.minX = -0.2
-        self.minY = -1
-        self.maxX = 1.8
-        self.maxY = 1
+        self.minY = -1.5
+        self.maxX = 2.8
+        self.maxY = 1.5
         
         # Define the "coin" locations
         self.coins = [(2.0, 1.0), (2.0, 1.75), (1.0, 2.0), (1.25, 2.75), (2.75, 2.75)]
@@ -132,19 +135,35 @@ class DeliberativeArchitectureNode(Node):
         # Remove collected coins from the list
         for coin in collected_coins:
             self.coins.remove(coin)
+            
+    def check_for_flag():
+        x, y, _ = self.current_pose  # Unpack current position (x, y, yaw)
+        flag_x, flag_y = (2.6, -1.3)
+        
+        # Calculate distance to the flag
+        distance = ((flag_x - x) ** 2 + (flag - y) ** 2) ** 0.5
+        
+        # Check if within range (0.3)
+        if distance <= 0.3:
+            # Send a message indicating a coin was collected
+            msg = String()
+            msg.data = "REACHED_FLAG"
+            print("Reached flag!")
+            self.mario_pub.publish(msg)
+            self.state = self.STOP
 
     def control_cycle(self):
         # If odometry is not initialized yet, don't run anything
         if self.starting_pose is None:
             print("Waiting for odometry...")
             return
-
+        print("We're gaming")
         if self.state == self.NAVIGATE:
             pos = self.current_pose
             x = pos[0]
             y = pos[1]
             z = pos[2]
-            print("Current pose is ", f"{x:.3g}", ", ", f"{y:.3g}", ", ", f"{z:.3g}")
+            #print("Current pose is ", f"{x:.3g}", ", ", f"{y:.3g}", ", ", f"{z:.3g}")
             #twist.linear.x = self.LINEAR_SPEED
             #twist.linear.x = 0.0
             if self.is_out_of_bounds():
