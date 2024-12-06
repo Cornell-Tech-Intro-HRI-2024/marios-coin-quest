@@ -95,7 +95,7 @@ class DeliberativeArchitectureNode(Node):
         
         # Define the "coin" locations
         #self.coins = [(2.0, -0.6), (2.6, -1.5), (0.8, -2.0), (0.7, -2.25), (2.2, -2.5)]
-        self.coins = [(0.6, -2.0), (1.5, -2.6), (2.0, -0.8), (2.25, -0.7), (2.5, -2.2)]
+        self.coins = [(0.6, -2.0), (1.5, -2.6), (2.0, -0.8), (2.25, -0.7), (2.5, -2.2), (2.5, -1.5), (1.7, -2.0)]
         
     def is_out_of_bounds(self):
         pos = self.current_pose
